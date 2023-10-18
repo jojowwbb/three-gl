@@ -1,20 +1,52 @@
-varying vec2 vUv;
-varying vec3 vNoraml;
-varying float vRimRate;
+#define PHONG
+varying vec3 vViewPosition;
+varying vec2 uvPosition;
+#ifdef USE_SURFACE_NORMAL
+ varying vec3 surfaceNormal;
+#endif
 
-precision highp float;
+#include <common>
+#include <uv_pars_vertex>
+#include <displacementmap_pars_vertex>
+#include <envmap_pars_vertex>
+#include <color_pars_vertex>
+#include <fog_pars_vertex>
+#include <normal_pars_vertex>
+#include <morphtarget_pars_vertex>
+#include <skinning_pars_vertex>
+#include <shadowmap_pars_vertex>
+#include <logdepthbuf_pars_vertex>
+#include <clipping_planes_pars_vertex>
 
 void main() {
+    uvPosition = uv;
 
-    vUv = uv;
+    #include <uv_vertex>
+    #include <color_vertex>
+    
+    #include <beginnormal_vertex>
+    #include <morphnormal_vertex>
+    #include <skinbase_vertex>
+    #include <skinnormal_vertex>
+    #include <defaultnormal_vertex>
+    #ifdef USE_SURFACE_NORMAL
+      surfaceNormal = normalize( transformedNormal );
+    #endif
+    #include <normal_vertex>
+    
+    #include <begin_vertex>
+    
+    #include <morphtarget_vertex>
+    #include <skinning_vertex>
+    #include <displacementmap_vertex>
+    #include <project_vertex>
+    #include <logdepthbuf_vertex>
+    #include <clipping_planes_vertex>
+    
+    vViewPosition = - mvPosition.xyz;
 
-    vec4 modelPosition = modelMatrix * vec4(position, 1.0);
-    gl_Position = projectionMatrix * viewMatrix * modelPosition;
-
-    vec4 viewPosition = modelViewMatrix * vec4(position, 1.);
-
-   vNoraml = normalMatrix * normal;
-    vec3 eyeDir = normalize(-viewPosition.xyz);
-    //顶点法线和相机的夹角因子
-    vRimRate = 1.0 - abs(dot(eyeDir, vNoraml));
+    #include <worldpos_vertex>
+    #include <envmap_vertex>
+    #include <shadowmap_vertex>
+    #include <fog_vertex>
 }

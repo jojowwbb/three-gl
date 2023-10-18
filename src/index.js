@@ -9,6 +9,7 @@ import buildImg from './static/images/building.png'
 import mapImg from './static/images/map.png'
 import gisImg from './static/images/gis.png'
 import effectImg from './static/images/effect.png'
+import solarImg from './static/images/solar.webp'
 
 const { Row, Col } = Grid
 
@@ -19,17 +20,18 @@ var data = [
     { title: 'Map', page: '/map.html', img: mapImg, content: 'ThreeJS GEOJSON地图案例' },
     { title: 'Building', page: '/building.html', img: buildImg, content: 'ThreeJS GEOJSON建筑白膜案例' },
     { title: 'Gis', page: '/gis.html', img: gisImg, content: 'ThreeJS+高德地图+GEOJSON案例' },
+    { title: 'Solar', page: '/solar.html', img: solarImg, content: 'ThreeJS+太阳系动画' },
     { title: 'Shader', page: '/shader.html', img: gisImg, content: 'Shader调试环境' },
     { title: 'Effect', page: '/effect.html', img: effectImg, content: '可视化特效案例' }
 ]
 
 const App = () => {
     return (
-        <div style={{ margin: '30px 64px' }}>
-            <Row gutter={48} style={{ marginBottom: 20 }}>
+        <div style={{ margin: 24 }}>
+            <Row gutter={48}>
                 {data.map((item) => {
                     return (
-                        <Col span={8}>
+                        <Col span={8} style={{ marginBottom: 24 }}>
                             <Link href={item.page}>
                                 <Card
                                     hoverable

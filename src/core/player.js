@@ -8,8 +8,6 @@ import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js'
 
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js'
 
-import * as dat from 'dat.gui'
-
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass'
@@ -17,7 +15,7 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 
 import html2canvas from 'html2canvas'
 
-import { latLonToVector3 } from './utils/index'
+import GUI from 'lil-gui'
 
 var EnvOptions = {
     controls: true,
@@ -60,20 +58,20 @@ export default class Player {
      */
     constructor(options) {
         var envOptions = Object.assign({}, EnvOptions, options)
-        this.gui = new dat.GUI()
+
+        this.gui = new GUI()
 
         const scene = new THREE.Scene()
+        scene.fog = new THREE.Fog(0xffffff)
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 60000)
 
-        const renderer = new THREE.WebGLRenderer(Object.assign({ antialias: true, logarithmicDepthBuffer: true, }, envOptions.webglRenderer))
+        const renderer = new THREE.WebGLRenderer(Object.assign({ antialias: true, logarithmicDepthBuffer: true }, envOptions.webglRenderer))
 
         this.scene = scene
         this.camera = camera
         this.renderer = renderer
 
         this.renderer.autoClear = false
-
-        camera.position.set(3.537729217921893, 5.64615829904671, -0.3029838282005545)
 
         renderer.setSize(window.innerWidth, window.innerHeight)
 
@@ -82,8 +80,6 @@ export default class Player {
         this.bloomLayer = new THREE.Layers()
         this.bloomLayer.set(Player.LAYER.Bloom)
 
-        this.addAmbientLight()
-        this.addBloom()
         this.initEvent()
 
         this.addCSSRender()
@@ -94,6 +90,7 @@ export default class Player {
     }
 
     initEvent() {
+        //resize事件
         window.addEventListener('resize', () => {
             // 更新摄像头
             this.camera.aspect = window.innerWidth / window.innerHeight
@@ -113,16 +110,17 @@ export default class Player {
      */
     addControls() {
         const controls = new OrbitControls(this.camera, this.renderer.domElement)
-        // controls.listenToKeyEvents(window) // optional
+        controls.listenToKeyEvents(window) // optional
         controls.enableDamping = true // an animation loop is required when either damping or auto-rotation are enabled
-        //controls.dampingFactor = 0.05
-        //controls.screenSpacePanning = false
+        controls.dampingFactor = 0.05
+        controls.screenSpacePanning = false
         controls.minDistance = 1
         controls.maxDistance = 60000
-        //   controls.maxPolarAngle = Math.PI / 2
+        controls.maxPolarAngle = Math.PI / 2
         this.controls = controls
     }
 
+    //css渲染器
     addCSSRender() {
         const labelRenderer = new CSS2DRenderer()
         labelRenderer.domElement.style.position = 'absolute'
@@ -140,20 +138,77 @@ export default class Player {
         const axesHelper = new THREE.AxesHelper(100)
         this.scene.add(axesHelper)
     }
-    /**
-     * 默认环境光
-     */
+
+    addVec3Gui(object, name, onChange) {
+        const folder = this.gui.addFolder(name)
+        folder.add(object, 'x').onChange(onChange)
+        folder.add(object, 'y').onChange(onChange)
+        folder.add(object, 'z').onChange(onChange)
+    }
+
     addAmbientLight() {
-        const ambientLight = new THREE.AmbientLight(0xffffff)
-        this.scene.add(ambientLight)
+        const light = new THREE.AmbientLight(0xffffff, 1)
+        this.scene.add(light)
+        this.gui.addFolder('环境光')
+        this.gui.addColor(light, 'color').name('颜色')
+        this.gui.addColor(light, 'intensity').name('强度')
+    }
+
+    addPointLight() {
+        const light = new THREE.PointLight(0xffffff, 1)
+        this.scene.add(light)
+        const folder = this.gui.addFolder('点光')
+        folder.addColor(light, 'color').name('颜色')
+        folder.add(light, 'intensity').name('强度')
+        this.addVec3Gui(light.position, '点光位置', () => {})
+    }
+
+    addDirectionalLight() {
+        const light = new THREE.DirectionalLight(0xffffff, 1)
+        light.position.set(100, 100, 0)
+        light.target.position.set(0, 0, 0)
+        const helper = new THREE.DirectionalLightHelper(light)
+        this.scene.add(helper)
+        this.scene.add(light)
+        this.scene.add(light.target)
+
+        const f1 = this.gui.addFolder('平行光')
+        f1.addColor(light, 'color').name('颜色')
+        f1.add(light, 'intensity').name('强度')
+        this.addVec3Gui(light.position, '平行光位置', updateLight)
+        this.addVec3Gui(light.target.position, '平行光目标位置', updateLight)
+
+        function updateLight() {
+            light.target.updateMatrixWorld()
+            helper.update()
+        }
+    }
+
+    /**
+     * 添加半球光
+     */
+    addHemisphereLight() {
+        const light = new THREE.HemisphereLight(0xffffff, 0x8d8d8d, 3)
+        this.scene.add(light)
+
+        const folder = this.gui.addFolder('半球光')
+        folder.addColor(light, 'skyColor').name('天空颜色')
+        folder.addColor(light, 'groundColor').name('地面颜色')
+        folder.add(light, 'intensity').name('强度')
+        this.addVec3Gui(light.position, '半球光位置', () => {})
     }
 
     /**
      * 辅助网格
      */
-    addGridHelper() {
-        var grid = new THREE.GridHelper(300, 300, 0xff0000, 0x00ff00)
-        this.scene.add(grid)
+    addGridHelper(object) {
+        var grid = new THREE.GridHelper(300, 300, 0xffffff, 0xffffff)
+        grid.material.depthWrite = false
+        if (object) {
+            object.add(grid)
+        } else {
+            this.scene.add(grid)
+        }
     }
 
     /**
@@ -186,11 +241,11 @@ export default class Player {
         this.unrealBloomPass.radius = 0.5 //辉光半径
         this.unrealBloomPass.renderToScreen = false //
 
-        const bloom = this.gui.addFolder('辉光效果')
-        bloom.open()
-        bloom.add(this.unrealBloomPass, 'threshold').min(0).max(1).step(0.01)
-        bloom.add(this.unrealBloomPass, 'strength').min(0).max(1).step(0.01)
-        bloom.add(this.unrealBloomPass, 'radius').min(0).max(1).step(0.01)
+        // const bloom = this.gui.addFolder('辉光效果')
+        // bloom.open()
+        // bloom.add(this.unrealBloomPass, 'threshold').min(0).max(1).step(0.01)
+        // bloom.add(this.unrealBloomPass, 'strength').min(0).max(1).step(0.01)
+        // bloom.add(this.unrealBloomPass, 'radius').min(0).max(1).step(0.01)
 
         //辉光渲染器
         this.glowComposer = new EffectComposer(this.renderer)
@@ -246,24 +301,24 @@ export default class Player {
      */
     render() {
         this.controls.update()
-        this.scene.updateMatrixWorld(true)
+        //移除辉光渲染
+        // //渲染bloom 
+        // this.scene.traverse((obj) => {
+        //     if (this.bloomLayer.test(obj.layers) === false) {
+        //         this.materialsBak[obj.uuid] = obj.material
+        //       //  obj.material = new THREE.MeshBasicMaterial({ color: 'black' })
+        //     }
+        // })
+        // this.glowComposer.render()
 
-        //渲染bloom
-        this.scene.traverse((obj) => {
-            if (this.bloomLayer.test(obj.layers) === false) {
-                this.materialsBak[obj.uuid] = obj.material
-                obj.material = new THREE.MeshBasicMaterial({ color: 'black' })
-            }
-        })
-        this.glowComposer.render()
+        // this.scene.traverse((v) => {
+        //     if (this.materialsBak[v.uuid]) {
+        //         v.material = this.materialsBak[v.uuid]
+        //     }
+        // })
+        // this.effectComposer.render()
 
-        this.scene.traverse((v) => {
-            if (this.materialsBak[v.uuid]) {
-                v.material = this.materialsBak[v.uuid]
-            }
-        })
-        this.effectComposer.render()
-
+        this.renderer.render(this.scene, this.camera)
         //渲染文本标签
         this.labelRenderer.render(this.scene, this.camera)
     }
@@ -282,13 +337,6 @@ export default class Player {
     loadFBX(path, callback) {
         const loader = new FBXLoader()
         loader.load(path, function (object) {
-            // object.traverse(function (child) {
-            //     if (child.isMesh) {
-            //         child.castShadow = true
-            //         child.receiveShadow = true
-            //     }
-            // })
-            // scene.add(object)
             callback(object)
         })
     }
@@ -331,6 +379,18 @@ export default class Player {
     getObjectByName(name) {
         return this.scene.getObjectByName(name)
     }
+
+    /**
+     * 可以将中心不在几何原点的物体移动到几何原点(0,0,0)
+     * @param {*} mesh 物体
+     */
+    center(mesh) {
+        const box = new THREE.Box3().setFromObject(mesh)
+        const center = box.getCenter(new THREE.Vector3())
+        mesh.position.x += model.position.x - center.x
+        mesh.position.y += model.position.y - center.y
+        mesh.position.z += model.position.z - center.z
+    }
     /**
      * 创建文本标签精灵
      * @param {*} text 文本内容
@@ -360,6 +420,11 @@ export default class Player {
         })
     }
 
+    /**
+     * 创建文本标签
+     * @param {*} name
+     * @returns
+     */
     createTextLabel(name) {
         const div = document.createElement('div')
         div.style.color = '#fff'
@@ -368,43 +433,5 @@ export default class Player {
         div.textContent = name
         const label = new CSS2DObject(div)
         return label
-    }
-
-    /**
-     * 经纬转平面坐标
-     * 使用米勒投影
-     * @param {*} lon
-     * @param {*} lat
-     * @returns
-     */
-    lonlatTranformMillerXY(lon, lat) {
-        var L = 6381372 * Math.PI * 2, // 地球周长
-            W = L, // 平面展开后，x轴等于周长
-            H = L / 2, // y轴约等于周长一半
-            mill = 2.3, // 米勒投影中的一个常数，范围大约在正负2.3之间
-            x = (lon * Math.PI) / 180, // 将经度从度数转换为弧度
-            y = (lat * Math.PI) / 180 // 将纬度从度数转换为弧度
-        // 这里是米勒投影的转换
-        y = 1.25 * Math.log(Math.tan(0.25 * Math.PI + 0.4 * y))
-        // 这里将弧度转为实际距离
-        x = W / 2 + (W / (2 * Math.PI)) * x
-        y = H / 2 - (H / (2 * mill)) * y
-        // 转换结果的单位是公里
-        // 可以根据此结果，算出在某个尺寸的画布上，各个点的坐标
-        return {
-            x: x / 1000,
-            y: y / 1000
-        }
-    }
-
-    /**
-     * 经纬转平面坐标
-     * 使用米勒投影
-     * @param {*} lon
-     * @param {*} lat
-     * @returns
-     */
-    lonlatTranformMectorXY(x, y) {
-        return latLonToVector3(x, y)
     }
 }

@@ -1095,6 +1095,13 @@
   resolved "https://r.cnpmjs.org/@leichtgewicht/ip-codec/-/ip-codec-2.0.4.tgz#b2ac626d6cb9c8718ab459166d4bb405b8ffa78b"
   integrity sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==
 
+"@masatomakino/raf-ticker@^0.4.2":
+  version "0.4.2"
+  resolved "https://registry.npmmirror.com/@masatomakino/raf-ticker/-/raf-ticker-0.4.2.tgz#3f2b8725bbe2d2b39a49e6a07f80fd92fcf2d374"
+  integrity sha512-H55kGf7K1fh9rzNbVUopLveZLY2TritZYqLNEox5oGNpvpzx4qF8DBNccKkrAzId9Tdn0AE4N8O6cFmLVqz9wQ==
+  dependencies:
+    eventemitter3 "^4.0.7"
+
 "@nodelib/fs.scandir@2.1.5":
   version "2.1.5"
   resolved "https://r2.cnpmjs.org/@nodelib/fs.scandir/-/fs.scandir-2.1.5.tgz#7619c2eb21b25483f6d167548b4cfd5a7488c3d5"
@@ -2544,7 +2551,7 @@ etag@~1.8.1:
   resolved "https://r.cnpmjs.org/etag/-/etag-1.8.1.tgz#41ae2eeb65efa62268aebfea83ac7d79299b0887"
   integrity sha512-aIL5Fx7mawVa300al2BnEE4iNvo1qETxLrPI/o05L7z6go7fCw1J6EQmbK4FmJ2AS7kgVF/KEZWufBfdClMcPg==
 
-eventemitter3@^4.0.0:
+eventemitter3@^4.0.0, eventemitter3@^4.0.7:
   version "4.0.7"
   resolved "https://r2.cnpmjs.org/eventemitter3/-/eventemitter3-4.0.7.tgz#2de9b68f6528d5644ef5c59526a1b4a07306169f"
   integrity sha512-8guHBZCwKnFhYdHr2ysuRWErTwhoN2X8XELRlrRwpmfeY2jjuUN4taQMsULKUVo1K4DvZl+0pgfyoysHxvmvEw==
@@ -3263,6 +3270,11 @@ less@^4.2.0:
     mime "^1.4.1"
     needle "^3.1.0"
     source-map "~0.6.0"
+
+lil-gui@^0.18.2:
+  version "0.18.2"
+  resolved "https://registry.npmmirror.com/lil-gui/-/lil-gui-0.18.2.tgz#e28a627be6a38bb80e9237817ad2c530eeb76279"
+  integrity sha512-DgdrLy3/KGC0PiQLKgOcJMPItP4xY4iWgJ9+91Zaxfr8GCTmMps05QS9w9jW7yspILlbscbquwjOwxmWnSx5Uw==
 
 loader-runner@^4.2.0:
   version "4.3.0"
@@ -4447,6 +4459,12 @@ three@^0.155.0:
   version "0.155.0"
   resolved "https://r.cnpmjs.org/three/-/three-0.155.0.tgz#cca9b8ad817830c8b4fdd8f0d9a12a2e413a2672"
   integrity sha512-sNgCYmDijnIqkD/bMfk+1pHg3YzsxW7V2ChpuP6HCQ8NiZr3RufsXQr8M3SSUMjW4hG+sUk7YbyuY0DncaDTJQ==
+
+threejs-shader-materials@MasatoMakino/threejs-shader-materials:
+  version "0.5.0"
+  resolved "https://codeload.github.com/MasatoMakino/threejs-shader-materials/tar.gz/26c272235c6ee65f3a728c411cee1c7a274f4c84"
+  dependencies:
+    "@masatomakino/raf-ticker" "^0.4.2"
 
 through@X.X.X:
   version "2.3.8"

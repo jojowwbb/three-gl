@@ -6,6 +6,7 @@ export default class LightPoints extends BaseEffect {
     defaultConfig = {
         texturePath: './assets/texture/points/trace_05.png',
         color: 0xffffff,
+        border: 40,
         count: 5000
     }
 
@@ -16,7 +17,7 @@ export default class LightPoints extends BaseEffect {
     }
 
     init() {
-        let { count, color, texturePath } = this.options
+        let { count, color, texturePath, border } = this.options
         const particlesGeometry = new THREE.BufferGeometry()
         // 设置缓冲区数组
         const positions = new Float32Array(count * 3)
@@ -24,7 +25,7 @@ export default class LightPoints extends BaseEffect {
         const colors = new Float32Array(count * 3)
         // 设置顶点
         for (let i = 0; i < count * 3; i++) {
-            positions[i] = (Math.random() - 0.5) * 40
+            positions[i] = (Math.random() - 0.5) * (border || 40)
             colors[i] = Math.random()
         }
         particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
