@@ -33,11 +33,15 @@ module.exports = {
     context: __dirname,
     mode: 'development',
     entry: entry,
+    experiments: {
+        asyncWebAssembly: true,
+        syncWebAssembly: true,
+      },
     devServer: {
         port: 8021
     },
     resolve: {
-        fallback: { https: false, zlib: false, http: false, url: false },
+        fallback: { https: false, zlib: false, http: false, url: false,util:false },
         mainFiles: ['index', 'Cesium']
     },
     output: {
@@ -47,22 +51,8 @@ module.exports = {
     },
     module: {
         rules: [
-            // {
-            //     test: /\.(glsl)$/,
-            //     use: ['raw-loader']
-            // },
-            // {
-            //     test: /\.(frag|vert|glsl)$/,
-            //     use: [
-            //         {
-            //             loader: 'glsl-shader-loader',
-            //             options: {}
-            //         }
-            //     ]
-            // },
             {
                 test: /\.glsl$/,
-                //loader: 'webpack-glsl-loader'
                 use: path.resolve(__dirname, 'loader/index.js')
             },
             {
@@ -97,6 +87,7 @@ module.exports = {
         new CopyPlugin({
             patterns: [
                 { from: 'src/assets', to: 'assets' },
+                { from: 'src/static/lib', to: 'lib' },
                 { from: path.join(cesiumSource, cesiumWorkers), to: 'Workers' },
                 { from: path.join(cesiumSource, 'Assets'), to: 'Assets' },
                 { from: path.join(cesiumSource, 'Widgets'), to: 'Widgets' },

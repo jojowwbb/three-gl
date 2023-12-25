@@ -52,6 +52,7 @@ export default class Player {
         Default: 0
     }
 
+
     /**
      * 初始化整个环境
      * @param {*} options
@@ -89,6 +90,7 @@ export default class Player {
         envOptions.grid && this.addGridHelper()
     }
 
+  
     initEvent() {
         //resize事件
         window.addEventListener('resize', () => {

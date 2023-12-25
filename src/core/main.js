@@ -1,4 +1,5 @@
 export { default as Player } from './player.js'
+export { default as Space } from './space.js'
 export { default as GeoGeomtry } from './GeoGeomtry.js'
 export { PickHelper } from './helper.js'
 export { default as ShaderManager } from './shader/manager/ShaderManager.js'
