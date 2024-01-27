@@ -14,8 +14,6 @@ var debugParams = {
     color2: 0x183d82
 }
 
-function makePath(player) {}
-
 /**
  * 加载城市模型
  * @param {*} player
@@ -214,24 +212,16 @@ const mainApp = () => {
     dataDemo(player)
     senceDemo(player)
 
-
     var points = player.getObjectByName('LightPoints')
 
-    let progress=0;
+    let progress = 0
     let cameraParent = new THREE.Object3D()
     cameraParent.position.set(0, 0, 0)
     player.add(cameraParent)
-console.log(player.controls.position0)
+    console.log(player.controls.position0)
     // let progress = 0
     // let hasCamera = false
-    let curve = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(9, 0, 9), 
-        new THREE.Vector3(9, 0, -9), 
-        new THREE.Vector3(-9, 0, -9),
-        new THREE.Vector3(-9, 0, 9),
-        new THREE.Vector3(9, 0, 9)
-    ])
-
+    let curve = new THREE.CatmullRomCurve3([new THREE.Vector3(9, 0, 9), new THREE.Vector3(9, 0, -9), new THREE.Vector3(-9, 0, -9), new THREE.Vector3(-9, 0, 9), new THREE.Vector3(9, 0, 9)])
 
     //实时渲染
     function animate() {
@@ -240,19 +230,19 @@ console.log(player.controls.position0)
         }
         points.position.y -= 0.1
 
-        if (progress <= 1 - 0.0002){
-			const point = curve.getPointAt(progress) //获取样条曲线指定点坐标，作为相机的位置
-			const pointBox = curve.getPointAt(progress + 0.0002) //获取样条曲线指定点坐标
-			player.camera.position.set(point.x, point.y+1, point.z)
-			player.camera.lookAt(pointBox.x, pointBox.y, pointBox.z)
-		//	player.controls.position0.set(point.x, point.y, point.z) //非必要，场景有控件时才加上
-		//	player.controls.target.set(pointBox.x, pointBox.y, pointBox.z) //非必要，场景有控件时才加上
-			progress += 0.0002
-		} else {
-			progress = 0
-		}
+        if (progress <= 1 - 0.0002) {
+            const point = curve.getPointAt(progress) //获取样条曲线指定点坐标，作为相机的位置
+            const pointBox = curve.getPointAt(progress + 0.0002) //获取样条曲线指定点坐标
+            player.camera.position.set(point.x, point.y + 1, point.z)
+            player.camera.lookAt(pointBox.x, pointBox.y, pointBox.z)
+            //	player.controls.position0.set(point.x, point.y, point.z) //非必要，场景有控件时才加上
+            //	player.controls.target.set(pointBox.x, pointBox.y, pointBox.z) //非必要，场景有控件时才加上
+            progress += 0.0002
+        } else {
+            progress = 0
+        }
 
-         // 在动画函数中调用以下程序
+        // 在动画函数中调用以下程序
         // progress += 1 / 2000
         // let point = curve.getPoint(progress)
         // progress += 1 / 2000
@@ -261,9 +251,6 @@ console.log(player.controls.position0)
         // cameraParent.lookAt(new THREE.Vector3(nextPosition.x, nextPosition.y, nextPosition.z))
 
         requestAnimationFrame(animate)
-
-
-
 
         player.render()
     }

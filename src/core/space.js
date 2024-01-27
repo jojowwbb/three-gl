@@ -104,9 +104,13 @@ class PickHelper {
                 this.pickedObject = obj
                 // 保存它的颜色
                 this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex()
-                // 设置它的发光为 黄色/红色闪烁
-                this.pickedObject.material.emissive.setHex(this.pickColor)
-                this.callback(this.pickedObject)
+                console.log(obj)
+                if (this.callback) {
+                    this.callback(this.pickedObject)
+                } else {
+                    // 设置它的发光为 黄色/红色闪烁
+                    this.pickedObject.material.emissive.setHex(this.pickColor)
+                }
             }
         }
     }
@@ -125,15 +129,15 @@ class MySpace {
 
     composer = null
 
-    keyDownListener={}
-    keyUpListener={}
+    keyDownListener = {}
+    keyUpListener = {}
     /**
      * 初始化整个环境
      * @param {*} options
      */
-    constructor(optipns={}) {
+    constructor(optipns = {}) {
         this.gui = new GUI()
-        this.assetPath=optipns.assetPath||'./assets/model/'
+        this.assetPath = optipns.assetPath || './assets/model/'
     }
 
     setCache(key, data) {
@@ -152,8 +156,8 @@ class MySpace {
         delete this.cache[key]
     }
 
-    debug(name,obj){
-        console.debug(name,obj)
+    debug(name, obj) {
+        console.debug(name, obj)
     }
 
     init() {
@@ -167,14 +171,17 @@ class MySpace {
             this.initCamera()
         }
         this.initEvent()
+
         setTimeout(() => {
             this.render()
         }, 300)
     }
 
     initScene() {
+        //this.scene = scene
+
         const scene = new THREE.Scene()
-     //   scene.background = new THREE.Color(0xbbbbbb)
+        scene.background = new THREE.Color(0xbfe3dd)
         this.scene = scene
     }
 
@@ -189,7 +196,7 @@ class MySpace {
 
         this.renderer = renderer
         this.renderer.setSize(window.innerWidth, window.innerHeight)
-       
+
         document.body.appendChild(renderer.domElement)
 
         this.addCSSRender()
@@ -210,30 +217,29 @@ class MySpace {
             this.render()
         })
 
-        document.addEventListener("keydown", ({code})=>{
-            if(this.keyDownListener[code]){
-                this.keyDownListener[code].map(callback=>{
+        document.addEventListener('keydown', ({ code }) => {
+            if (this.keyDownListener[code]) {
+                this.keyDownListener[code].map((callback) => {
                     callback()
                 })
             }
         })
-        document.addEventListener("keyup", ({code})=>{
-            if(this.keyUpListener[code]){
-                this.keyUpListener[code].map(callback=>{
+        document.addEventListener('keyup', ({ code }) => {
+            if (this.keyUpListener[code]) {
+                this.keyUpListener[code].map((callback) => {
                     callback()
                 })
             }
         })
-        
     }
 
-    regKeyDown(key,fn){
-        this.keyDownListener[key]=this.keyDownListener[key]||[];
-        this.keyDownListener[key].push(fn);
+    regKeyDown(key, fn) {
+        this.keyDownListener[key] = this.keyDownListener[key] || []
+        this.keyDownListener[key].push(fn)
     }
-    regKeyUp(key,fn){
-        this.keyUpListener[key]=this.keyUpListener[key]||[];
-        this.keyUpListener[key].push(fn);
+    regKeyUp(key, fn) {
+        this.keyUpListener[key] = this.keyUpListener[key] || []
+        this.keyUpListener[key].push(fn)
     }
     /**
      * 场景控制器
@@ -241,16 +247,13 @@ class MySpace {
      */
     addControls() {
         const controls = new OrbitControls(this.camera, this.renderer.domElement)
-        //controls.listenToKeyEvents(window) // optional
+        controls.listenToKeyEvents(window) // optional
         controls.enableDamping = true // an animation loop is required when either damping or auto-rotation are enabled
         controls.dampingFactor = 0.05
         controls.screenSpacePanning = false
-        // controls.addEventListener('change', () => {
-        //     this.render()
-        // })
-        // controls.listenToKeyEvents(window) // optional
-        // controls.enableDamping = true // an animation loop is required when either damping or auto-rotation are enabled
-        // controls.update()
+        // controls.minDistance = 1
+        // controls.maxDistance = 60000
+        //controls.maxPolarAngle = Math.PI / 2
         this.controls = controls
     }
 
@@ -299,11 +302,11 @@ class MySpace {
     }
 
     addAmbientLight() {
-        const light = new THREE.AmbientLight(0xffffff, 1)
+        const light = new THREE.AmbientLight(0xffffff, 0.6)
         this.scene.add(light)
-        this.gui.addFolder('环境光')
-        this.gui.addColor(light, 'color').name('颜色')
-        this.gui.addColor(light, 'intensity').name('强度')
+        var folder = this.gui.addFolder('环境光')
+        folder.addColor(light, 'color').name('颜色')
+        folder.add(light, 'intensity').name('强度')
     }
 
     addVec3Gui(object, name, onChange) {
@@ -390,11 +393,10 @@ class MySpace {
     render() {
         this.controls.update()
         this.renderer.render(this.scene, this.camera)
-        //渲染文本标签
-       // this.labelRenderer.render(this.scene, this.camera)
 
-        if (this.composer) {
-            this.composer.render()
+        //渲染文本标签
+        if (this.labelRenderer) {
+            this.labelRenderer.render(this.scene, this.camera)
         }
     }
 
@@ -420,7 +422,7 @@ class MySpace {
         var loader = new GLTFLoader()
         return new Promise((resolve, reject) => {
             loader.load(path, (gltf) => {
-                this.debug(path,gltf)
+                this.debug(path, gltf)
                 resolve(gltf)
             })
         })
@@ -483,8 +485,8 @@ class MySpace {
     getBox(object3d) {
         const box = new THREE.Box3().setFromObject(object3d)
         return {
-            size:box.getSize(size),
-            center:box.getCenter(size)
+            size: box.getSize(size),
+            center: box.getCenter(size)
         }
     }
     /**
@@ -544,7 +546,7 @@ class MySpace {
         outlinePass.edgeThickness = 1.0 // 边框宽度
         outlinePass.downSampleRatio = 1 // 边框弯曲度
         outlinePass.pulsePeriod = 1 // 呼吸闪烁的速度
-        outlinePass.visibleEdgeColor=new THREE.Color(0, 1, 0) // 呼吸显示的颜色
+        outlinePass.visibleEdgeColor = new THREE.Color(0, 1, 0) // 呼吸显示的颜色
         outlinePass.hiddenEdgeColor = new THREE.Color(0, 0, 0) // 呼吸消失的颜色
         outlinePass.clear = true
         composer.addPass(outlinePass)

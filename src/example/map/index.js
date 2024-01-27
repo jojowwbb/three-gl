@@ -1,11 +1,7 @@
 import gcoord from 'gcoord'
-import gsap from 'gsap'
 import * as THREE from 'three'
 import { ScatterCircle } from '../../core/effect/index.js'
 import { GeoGeomtry, Player } from '../../core/main.js'
-
-import fragmentShader from './shader/fragment.glsl'
-import vertextShader from './shader/vertex.glsl'
 
 /**
  * 场景效果
@@ -24,15 +20,6 @@ function senceDemo(player) {
     const directionalLight = new THREE.DirectionalLight(0xe8eaeb, 0.2)
     directionalLight.position.set(0, 20, 20)
     player.add(directionalLight)
-    // const directionalLight2 = directionalLight.clone()
-    // directionalLight2.position.set(0, 10, -5)
-    // const directionalLight3 = directionalLight.clone()
-    // directionalLight3.position.set(5, 10, 0)
-    // const directionalLight4 = directionalLight.clone()
-    // directionalLight4.position.set(-5, 10, 0)
-    // player.add(directionalLight2)
-    // player.add(directionalLight3)
-    // player.add(directionalLight4)
 }
 
 function transform(coord) {
@@ -89,7 +76,7 @@ const mainApp = () => {
                 // player.add(label)
 
                 var scatterCircle = new ScatterCircle({ radius: 50 })
-                scatterCircle.mesh.position.set(position.x+20, position.y + 21, position.z+20)
+                scatterCircle.mesh.position.set(position.x + 20, position.y + 21, position.z + 20)
                 //scatterCircle.setPosition({x:position.x, y:position.y,z:position.z})
                 player.add(scatterCircle.mesh)
 
